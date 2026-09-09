@@ -1,0 +1,240 @@
+// Main 
+
+int main()
+{
+    Pessoa pessoas[MAX_PESSOAS];
+    int quantidade = 0;
+    int opcao;
+
+    do
+    {
+        printf("\n========================================\n");
+        printf("        SISTEMA DE AFINIDADES\n");
+        printf("========================================\n");
+        printf("1 - Cadastrar pessoas\n");
+        printf("2 - Exibir pessoas e preferencias\n");
+        printf("3 - Buscar pessoa pelo nome\n");
+        printf("4 - Comparar duas pessoas\n");
+        printf("5 - Encontrar pessoa mais semelhante\n");
+        printf("6 - Exibir ranking de afinidade\n");
+        printf("7 - Analisar preferencias de duas pessoas\n");
+        printf("0 - Encerrar\n");
+
+        printf("\nOpcao: ");
+        scanf("%d", &opcao);
+
+        switch (opcao)
+        {
+            case 1:
+
+                printf("\nDigite a quantidade de pessoas: ");
+                scanf("%d", &quantidade);
+
+                if (quantidade <= 0 || quantidade > MAX_PESSOAS)
+                {
+                    printf("Quantidade invalida. Digite entre 1 e %d.\n",
+                           MAX_PESSOAS);
+
+                    quantidade = 0;
+                }
+                else
+                {
+                    cadastrarPessoas(pessoas, quantidade);
+                }
+
+                break;
+
+            case 2:
+
+                if (quantidade == 0)
+                {
+                    printf("\nNenhuma pessoa cadastrada.\n");
+                }
+                else
+                {
+                    exibirPessoas(pessoas, quantidade);
+                }
+
+                break;
+
+            case 3:
+
+                if (quantidade == 0)
+                {
+                    printf("\nNenhuma pessoa cadastrada.\n");
+                }
+                else
+                {
+                    encontrarPessoa(pessoas, quantidade);
+                }
+
+                break;
+
+            case 4:
+
+                if (quantidade < 2)
+                {
+                    printf("\nCadastre pelo menos duas pessoas.\n");
+                }
+                else
+                {
+                    compararPessoas(pessoas, quantidade);
+                }
+
+                break;
+
+            case 5:
+
+                if (quantidade < 2)
+                {
+                    printf("\nCadastre pelo menos duas pessoas.\n");
+                }
+                else
+                {
+                    encontrarMaisSemelhante(pessoas, quantidade);
+                }
+
+                break;
+
+            case 6:
+
+                if (quantidade < 2)
+                {
+                    printf("\nCadastre pelo menos duas pessoas.\n");
+                }
+                else
+                {
+                    exibirRanking(pessoas, quantidade);
+                }
+
+                break;
+
+            case 7:
+
+                if (quantidade < 2)
+                {
+                    printf("\nCadastre pelo menos duas pessoas.\n");
+                }
+                else
+                {
+                    analisarPreferencias(pessoas, quantidade);
+                }
+
+                break;
+
+            case 0:
+
+                printf("\nEncerrando o programa...\n");
+
+                break;
+
+            default:
+
+                printf("\nOpcao invalida.\n");
+        }
+
+    } while (opcao != 0);
+
+    return 0;
+}
+
+// Desenvolvimento das funçoes 
+
+float calculaDistancia(Pessoa pessoas[], int pessoa1, int pessoa2)
+{
+    float soma = 0;
+    float diferenca;
+    int j;
+
+    for (j = 0; j < QTD_PREF; j++)
+    {
+        diferenca = pessoas[pessoa1].notas[j]
+                  - pessoas[pessoa2].notas[j];
+
+        soma = soma + diferenca * diferenca;
+    }
+
+    return sqrt(soma);
+}
+
+void compararPessoas(Pessoa pessoas[], int quantidade)
+{
+    char nome1[50];
+    char nome2[50];
+    int pessoa1;
+    int pessoa2;
+    float distancia;
+
+    printf("Digite o nome da primeira pessoa: ");
+    scanf(" %49[^\n]", nome1);
+
+    printf("Digite o nome da segunda pessoa: ");
+    scanf(" %49[^\n]", nome2);
+
+    pessoa1 = buscaPessoa(pessoas, quantidade, nome1);
+    pessoa2 = buscaPessoa(pessoas, quantidade, nome2);
+
+    if (pessoa1 == -1 || pessoa2 == -1)
+    {
+        printf("Uma ou ambas as pessoas nao foram encontradas.\n");
+        return;
+    }
+
+    distancia = calculaDistancia(pessoas, pessoa1, pessoa2);
+
+    printf("\n========================================\n");
+    printf("COMPARACAO DE PERFIS\n");
+    printf("========================================\n");
+    printf("%s x %s\n", pessoas[pessoa1].nome, pessoas[pessoa2].nome);
+    printf("Distancia euclidiana: %.2f\n", distancia);
+}
+
+
+void encontrarMaisSemelhante(Pessoa pessoas[], int quantidade)
+{
+    char nomeReferencia[50];
+    int referencia;
+    int maisSemelhante = -1;
+    int i;
+    float distancia;
+    float menorDistancia;
+
+    printf("Digite a pessoa de referencia: ");
+    scanf(" %49[^\n]", nomeReferencia);
+
+    referencia = buscaPessoa(pessoas, quantidade, nomeReferencia);
+
+    if (referencia == -1)
+    {
+        printf("Pessoa nao cadastrada.\n");
+        return;
+    }
+
+    if (quantidade < 2)
+    {
+        printf("Nao existem outras pessoas para comparar.\n");
+        return;
+    }
+
+    for (i = 0; i < quantidade; i++)
+    {
+        if (i != referencia)
+        {
+            distancia = calculaDistancia(pessoas, referencia, i);
+
+            printf("Distancia para %s: %.2f\n",
+                   pessoas[i].nome, distancia);
+
+            if (maisSemelhante == -1 || distancia < menorDistancia)
+            {
+                menorDistancia = distancia;
+                maisSemelhante = i;
+            }
+        }
+    }
+
+    printf("\nPerfil mais semelhante: %s\n",
+           pessoas[maisSemelhante].nome);
+
+    printf("Distancia: %.2f\n", menorDistancia);
+}
